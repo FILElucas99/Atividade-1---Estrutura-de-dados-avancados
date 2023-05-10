@@ -53,9 +53,8 @@ menos um cartão de crédito.
 • Listar os dados de um usuário, de uma compra ou de um cartão.
 
 # Representação visual da tabela de dispersão dos usuários, tabela de dispersão dos cartões de crédito, juntamente com a árvore de compras
-![hash](https://github.com/lucasmt01/Atividade-I-Estrutura-de-Dados-Avancado/assets/105560566/bf3e0d2a-b25c-46cc-82d7-83df7ea87835)
-
-![hashAAAA](https://github.com/lucasmt01/Atividade-I-Estrutura-de-Dados-Avancado/assets/105560566/f39d7a69-20c8-4d6d-831b-bb1107ae7da5)
+![WhatsApp Image 2023-05-10 at 2 47 57 PM](https://github.com/FILElucas99/Atividade-1---Estrutura-de-dados-avancados/assets/109489204/782517b3-653f-45a9-836b-e25c5d575883)
+![WhatsApp Image 2023-05-10 at 2 47 58 PM](https://github.com/FILElucas99/Atividade-1---Estrutura-de-dados-avancados/assets/109489204/f2a10f9e-e345-4c6c-b75d-d2c71425bc40)
 
 Os usuários e os cartões de créditos são representados por diferentes estruturas do tipo tabela
 hash. Os usuários guardam em si, para além do seus dados, o número dos cartões de créditos
