@@ -52,7 +52,7 @@ menos um cartão de crédito.
 
 • Listar os dados de um usuário, de uma compra ou de um cartão.
 
-# Representação visual da tabela de dispersão dos usuários, tabela de dispersão dos cartões de crédito, juntamente com a árvore de compras
+# Representação visual da tabela de dispersão dos usuários e tabela de dispersão dos cartões de crédito juntamente com a árvore de compras
 ![WhatsApp Image 2023-05-10 at 2 47 57 PM](https://github.com/FILElucas99/Atividade-1---Estrutura-de-dados-avancados/assets/109489204/782517b3-653f-45a9-836b-e25c5d575883)
 ![WhatsApp Image 2023-05-10 at 2 47 58 PM](https://github.com/FILElucas99/Atividade-1---Estrutura-de-dados-avancados/assets/109489204/f2a10f9e-e345-4c6c-b75d-d2c71425bc40)
 
