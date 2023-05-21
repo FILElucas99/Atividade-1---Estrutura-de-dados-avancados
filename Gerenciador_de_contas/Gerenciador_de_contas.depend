@@ -1,12 +1,13 @@
 # depslib dependency file v1.0
-1683737329 source:c:\users\lucas farias\documents\c files\gerenciador_de_contas\modulo.c
+1684706672 source:c:\users\lucas farias\documents\c files\gerenciador_de_contas\modulo.c
 	"lib.h"
 
-1684621929 c:\users\lucas farias\documents\c files\gerenciador_de_contas\lib.h
+1684706457 c:\users\lucas farias\documents\c files\gerenciador_de_contas\lib.h
 	<stdio.h>
 	<conio.h>
 	<stdlib.h>
+	<string.h>
 
-1684416987 source:c:\users\lucas farias\documents\c files\gerenciador_de_contas\main.c
+1684707114 source:c:\users\lucas farias\documents\c files\gerenciador_de_contas\main.c
 	"lib.h"
 
