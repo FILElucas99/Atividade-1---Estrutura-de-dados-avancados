@@ -5,8 +5,7 @@
 #include<string.h>
 #include<stdbool.h>
 #define TAM 50
-#define MAX 19
-
+#define MAX 5
 
 typedef struct cartao Cartao;
 
@@ -64,6 +63,7 @@ typedef struct tabNo_Cartao* noCartao;
 typedef struct tabela_Cartao {
     noCartao* tab;
     int tamanho;
+    int numCartao;
     float taxa;
 } tab_Cartao;
 
@@ -86,13 +86,16 @@ tab_Cartao* criarTabelaCartoes();
 void inserir_User(tab_User* tabela, Usuario novo_usuario);
 void exibirUsuarios(tab_User* tabela);
 void double_size_User(tab_User* t);
+int funcao_Hash_User(tab_User* t, int dado);
+
 void inserir_Cartao(tab_Cartao* tabela, Cartao* novo_cartao);
 void exibirCartao(tab_Cartao* tabela);
 void double_size_Cartao(tab_Cartao* t);
-int funcao_Hash(int dado);
+int funcao_Hash_Cartao(tab_Cartao* t, int dado);
 noUser buscaId(tab_User* t, int aux);
 noCartao buscaCartao(tab_Cartao* t, int num);
+bool verificaID(tab_User* t, int id);
+bool verificaNumero(tab_Cartao* t, int num);
 void menu();
 
 #endif // LIB_H_INCLUDED
-

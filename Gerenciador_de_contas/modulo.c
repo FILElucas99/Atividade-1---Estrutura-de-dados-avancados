@@ -107,7 +107,6 @@ struct NoArv* inserir(struct NoArv* raiz, Compra compra) {
     return balancear(raiz);
 }
 
-
 void imprimir(struct NoArv* raiz) {
     if (raiz) {
         imprimir(raiz->esq);
@@ -135,7 +134,7 @@ tab_User* criarTabelaUsuarios() {
 }
 
 void inserir_User(tab_User* tabela, Usuario novo_usuario) {
-    int hash = funcao_Hash(novo_usuario.id);
+    int hash = funcao_Hash_User(tabela, novo_usuario.id);
 
     noUser novo = malloc(sizeof(*novo));
     novo->dado = novo_usuario;
@@ -144,7 +143,6 @@ void inserir_User(tab_User* tabela, Usuario novo_usuario) {
     if (tabela->tab[hash] == NULL) {
         tabela->tab[hash] = novo;
     } else {
-        // Tratamento de colisão: insere o novo usuário no final da lista encadeada
         noUser atual = tabela->tab[hash];
         while (atual->next != NULL) {
             atual = atual->next;
@@ -152,14 +150,12 @@ void inserir_User(tab_User* tabela, Usuario novo_usuario) {
         atual->next = novo;
     }
 
-    tabela->numUsuarios++; // Incrementa o número de usuários
+    tabela->numUsuarios++;
+    tabela->taxa = (float)tabela->numUsuarios / tabela->tamanho;
 
-    // Verifica se a tabela atingiu ou excedeu 50% de ocupação antes de incrementar a taxa
-    if (tabela->taxa >= (float)tabela->tamanho * 0.5) {
-        double_size_User(tabela); // Chama a função double_size para aumentar o tamanho da tabela
+    if (tabela->taxa >= 0.5) {
+        double_size_User(tabela);
     }
-
-    tabela->taxa = (float)tabela->numUsuarios / tabela->tamanho; // Atualiza a taxa de ocupação
 }
 
 void exibirUsuarios(tab_User* tabela) {
@@ -183,68 +179,72 @@ void exibirUsuarios(tab_User* tabela) {
 
             printf("Cartoes do usuario %s:\n\n", usuario.nome);
             for (int j = 0; j < usuario.numCartoes; j++) {
-                printf("Cartao %d\n", j + 1);
+                printf("Cartão %d\n", j + 1);
                 printf("Numero do cartao: %d\n", usuario.cartoes[j]->num);
                 printf("Validade do cartao: %s\n", usuario.cartoes[j]->validade);
                 printf("Bandeira do cartao: %s\n", usuario.cartoes[j]->bandeira);
                 printf("Codigo do cartao: %d\n\n", usuario.cartoes[j]->codigo);
             }
-
             printf("----------------\n");
             atual = atual->next;
             posicao++;
         }
     }
+    printf("Tamanho da tabela hash de usuarios: %d", tabela->tamanho);
 }
 
+void double_size_User(tab_User* t) {
+    int oldSize = t->tamanho;
+    int newSize = t->tamanho * 2;
+
+    noUser* newTab = malloc(newSize * sizeof(noUser));
+
+    for (int i = 0; i < newSize; i++) {
+        newTab[i] = NULL;
+    }
+
+    for (int i = 0; i < oldSize; i++) {
+        noUser current = t->tab[i];
+        while (current != NULL) {
+            noUser next = current->next;
+            int newHash = funcao_Hash_User(t,current->dado.id) % newSize;
+
+            if (newTab[newHash] == NULL) {
+                newTab[newHash] = current;
+                current->next = NULL;
+            } else {
+                noUser atual = newTab[newHash];
+                while (atual->next != NULL) {
+                    atual = atual->next;
+                }
+                atual->next = current;
+                current->next = NULL;
+            }
+            current = next;
+        }
+    }
+    free(t->tab);
+
+    t->tamanho = newSize;
+    t->tab = newTab;
+}
 
 tab_Cartao* criarTabelaCartoes() {
     tab_Cartao* tabela = malloc(sizeof(tab_Cartao));
-    tabela->tab = malloc(TAM * sizeof(noCartao));
-    tabela->tamanho = TAM;
+    tabela->tab = malloc(MAX * sizeof(noCartao));
+    tabela->tamanho = MAX;
     tabela->taxa = 0.0;
 
     // Inicialize todos os elementos da tabela com NULL
-    for (int i = 0; i < TAM; i++) {
+    for (int i = 0; i < MAX; i++) {
         tabela->tab[i] = NULL;
     }
 
     return tabela;
 }
 
-void double_size_User(tab_User* t) {
-    int newSize = t->tamanho * 2;
-
-    // Cria um novo vetor de ponteiros para nós
-    noUser* newTab = malloc(newSize * sizeof(noUser));
-
-    // Inicializa o novo vetor com ponteiros nulos
-    for (int i = 0; i < newSize; i++) {
-        newTab[i] = NULL;
-    }
-
-    // Reespalha os elementos da tabela original para o novo vetor
-    for (int i = 0; i < t->tamanho; i++) {
-        noUser current = t->tab[i];
-        while (current != NULL) {
-            noUser next = current->next;
-            int h = funcao_Hash(current->dado.id) % newSize;
-            current->next = newTab[h];
-            newTab[h] = current;
-            current = next;
-        }
-    }
-
-    // Libera a memória da tabela original
-    free(t->tab);
-
-    // Atualiza o tamanho e o vetor da tabela com os novos valores
-    t->tamanho = newSize;
-    t->tab = newTab;
-}
-
 void inserir_Cartao(tab_Cartao* tabela, Cartao* novo_cartao) {
-    int hash = funcao_Hash(novo_cartao->num);
+    int hash = funcao_Hash_Cartao(tabela, novo_cartao->num);
 
     noCartao novo = malloc(sizeof(*novo));
     novo->dado = novo_cartao;
@@ -253,7 +253,6 @@ void inserir_Cartao(tab_Cartao* tabela, Cartao* novo_cartao) {
     if (tabela->tab[hash] == NULL) {
         tabela->tab[hash] = novo;
     } else {
-        // Tratamento de colisão: insere o novo cartão no final da lista encadeada
         noCartao atual = tabela->tab[hash];
         while (atual->next != NULL) {
             atual = atual->next;
@@ -261,45 +260,49 @@ void inserir_Cartao(tab_Cartao* tabela, Cartao* novo_cartao) {
         atual->next = novo;
     }
 
-    // Verifica se a tabela atingiu ou excedeu 50% de ocupação antes de incrementar a taxa
-    if (tabela->taxa >= (float)tabela->tamanho * 0.5) {
-        double_size_Cartao(tabela); // Chama a função double_size para aumentar o tamanho da tabela
-    }
+    tabela->numCartao++;
+    tabela->taxa = (float)tabela->numCartao / tabela->tamanho;
 
-    tabela->taxa++; // Incrementa a taxa de ocupação
+    if (tabela->taxa >= 0.5) {
+        double_size_Cartao(tabela);
+    }
 }
 
 void double_size_Cartao(tab_Cartao* t) {
+    int oldSize = t->tamanho;
     int newSize = t->tamanho * 2;
 
-    // Cria um novo vetor de ponteiros para nós
     noCartao* newTab = malloc(newSize * sizeof(noCartao));
 
-    // Inicializa o novo vetor com ponteiros nulos
     for (int i = 0; i < newSize; i++) {
         newTab[i] = NULL;
     }
 
-    // Reespalha os elementos da tabela original para o novo vetor
-    for (int i = 0; i < t->tamanho; i++) {
+    for (int i = 0; i < oldSize; i++) {
         noCartao current = t->tab[i];
         while (current != NULL) {
             noCartao next = current->next;
-            int h = funcao_Hash(current->dado->num) % newSize;
-            current->next = newTab[h];
-            newTab[h] = current;
+            int newHash = funcao_Hash_Cartao(t,current->dado->num) % newSize;
+
+            if (newTab[newHash] == NULL) {
+                newTab[newHash] = current;
+                current->next = NULL;
+            } else {
+                noCartao atual = newTab[newHash];
+                while (atual->next != NULL) {
+                    atual = atual->next;
+                }
+                atual->next = current;
+                current->next = NULL;
+            }
             current = next;
         }
     }
-
-    // Libera a memória da tabela original
     free(t->tab);
 
-    // Atualiza o tamanho e o vetor da tabela com os novos valores
     t->tamanho = newSize;
     t->tab = newTab;
 }
-
 
 void exibirCartao(tab_Cartao* tabela) {
     if (tabela == NULL) {
@@ -307,7 +310,7 @@ void exibirCartao(tab_Cartao* tabela) {
         return;
     }
 
-    for (int i = 0; i < TAM; i++) {
+    for (int i = 0; i < tabela->tamanho; i++) {
         noCartao atual = tabela->tab[i];
         int posicao = 0;  // Variável para armazenar a posição na lista encadeada
         while (atual != NULL) {
@@ -323,14 +326,18 @@ void exibirCartao(tab_Cartao* tabela) {
             posicao++;
         }
     }
+    printf("Tamanho da tabela hash de cartoes: %d",tabela->tamanho);
 }
 
-int funcao_Hash(int dado) {
-    return dado % MAX;
+int funcao_Hash_User(tab_User* t,int dado) {
+    return dado % t->tamanho;
+}
+int funcao_Hash_Cartao(tab_Cartao* t,int dado) {
+    return dado % t->tamanho;
 }
 
 noUser buscaId(tab_User* t, int aux) {
-    int hash = funcao_Hash(aux);
+    int hash = funcao_Hash_User(t, aux);
     noUser current = t->tab[hash];
 
     while (current != NULL) {
@@ -343,9 +350,8 @@ noUser buscaId(tab_User* t, int aux) {
     return NULL;
 }
 
-
 noCartao buscaCartao(tab_Cartao* t, int num) {
-    int hash = funcao_Hash(num);
+    int hash = funcao_Hash_Cartao(t, num);
     noCartao current = t->tab[hash];
 
     while (current != NULL) {
@@ -356,6 +362,33 @@ noCartao buscaCartao(tab_Cartao* t, int num) {
     }
     return NULL;
 }
+
+bool verificaID(tab_User* t, int id) {
+    for (int i = 0; i < t->tamanho; i++) {
+        noUser current = t->tab[i];
+        while (current != NULL) {
+            if (current->dado.id == id)
+                return false;
+
+            current = current->next;
+        }
+    }
+    return true;
+}
+
+bool verificaNumero(tab_Cartao* t, int num){
+    for (int i = 0; i < t->tamanho; i++) {
+        noCartao current = t->tab[i];
+        while (current != NULL) {
+            if (current->dado->num == num)
+                return false;
+
+            current = current->next;
+        }
+    }
+    return true;
+}
+
 
 void menu(){
     tab_User* tabelaUsuarios = criarTabelaUsuarios();
@@ -390,10 +423,14 @@ void menu(){
                 scanf(" %[^\n]", usuario->nome);
                 printf("Digite o CPF do usuario: ");
                 scanf(" %[^\n]", usuario->cpf);
-                printf("Digite o endereço do usuario: ");
+                printf("Digite o endereco do usuario: ");
                 scanf(" %[^\n]", usuario->endereco);
-                printf("Digite o id do usuario: ");
-                scanf("%d", &usuario->id);
+                do{
+                    printf("Digite o id do usuario: ");
+                    scanf("%d", &usuario->id);
+                    if(!verificaID(tabelaUsuarios, usuario->id))
+                        printf("Id ja exisente, informe um diferente\n");
+                } while (!verificaID(tabelaUsuarios, usuario->id));
 
                 printf("\nQuantos cartoes o usuario possui? ");
                 scanf("%d", &usuario->numCartoes);
@@ -406,8 +443,13 @@ void menu(){
                     usuario->cartoes[j] = malloc(sizeof(Cartao));
                     usuario->cartoes[j]->titular = usuario;
 
-                    printf("Digite o numero do cartao %d: ", j + 1);
-                    scanf("%d", &usuario->cartoes[j]->num);
+                    do{
+                        printf("Digite o numero do cartao %d: ", j + 1);
+                        scanf("%d", &usuario->cartoes[j]->num);
+                        if(!verificaNumero(tabelaCartao, usuario->cartoes[j]->num))
+                            printf("Numero ja exisente, informe um diferente\n");
+
+                    } while (!verificaNumero(tabelaCartao, usuario->cartoes[j]->num));
 
                     printf("Digite a data de validade do cartao %d: ", j + 1);
                     scanf(" %[^\n]", usuario->cartoes[j]->validade);
@@ -415,7 +457,7 @@ void menu(){
                     printf("Digite a bandeira do cartao %d: ", j + 1);
                     scanf(" %[^\n]", usuario->cartoes[j]->bandeira);
 
-                    printf("Digite o código do cartão %d: ", j + 1);
+                    printf("Digite o codigo do cartao %d: ", j + 1);
                     scanf("%d", &usuario->cartoes[j]->codigo);
 
                     // Inicialize os dados do cartão como NULL
@@ -457,7 +499,7 @@ void menu(){
                         printf("Informe os itens da compra: ");
                         scanf(" %[^\n]", itens);
                         strcpy(compra.itens, itens);
-                        printf("Informe o preço: ");
+                        printf("Informe o preco: ");
                         scanf("%f", &preco);
                         printf("\n");
                         compra.valor = preco;
@@ -468,7 +510,6 @@ void menu(){
                             inserir(cartao->dado->dados, compra);
                         }
                         printf("Compra cadastrada\n");
-
                     } else {
                         printf("Esse cartao nao esta vinculado a: %s\n\n", user->dado.nome);
                     }
@@ -477,12 +518,12 @@ void menu(){
                 }
                 break;
             case 5:
-                printf("\nInforme o num do cartão vinculado as compra(s): ");
+                printf("\nInforme o num do cartao vinculado as compra(s): ");
                 scanf("%d", &num);
                 printf("\n");
                 cartao = buscaCartao(tabelaCartao, num);
                 if(cartao){
-                        printf("Cartao encontrado, aqui está as compras:\n");
+                        printf("Cartao encontrado, aqui esta as compras:\n");
                         imprimir(cartao->dado->dados);
 
                 } else {
@@ -498,6 +539,5 @@ void menu(){
                 printf("\nOpcao invalida. Por favor, escolha uma opcao valida.\n");
                 break;
         }
-
     } while (opcao != 6);
 }
