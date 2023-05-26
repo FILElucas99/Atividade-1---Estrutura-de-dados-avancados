@@ -30,6 +30,7 @@ struct cartao {
 typedef struct {
     char itens[TAM];
     float valor;
+    int id_compra;
     Usuario user;
 } Compra;
 
@@ -91,11 +92,13 @@ int funcao_Hash_User(tab_User* t, int dado);
 void inserir_Cartao(tab_Cartao* tabela, Cartao* novo_cartao);
 void exibirCartao(tab_Cartao* tabela);
 void double_size_Cartao(tab_Cartao* t);
+void exibirCompra(struct NoArv* cartao, int id);
 int funcao_Hash_Cartao(tab_Cartao* t, int dado);
 noUser buscaId(tab_User* t, int aux);
 noCartao buscaCartao(tab_Cartao* t, int num);
 bool verificaID(tab_User* t, int id);
 bool verificaNumero(tab_Cartao* t, int num);
+bool verificaId_Compra(struct NoArv* raiz, int id);
 void menu();
 
 #endif // LIB_H_INCLUDED

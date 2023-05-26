@@ -111,7 +111,6 @@ void imprimir(struct NoArv* raiz) {
     if (raiz) {
         imprimir(raiz->esq);
         printf("Itens: %s\n", raiz->compra.itens);
-        printf("Nome: %s\n", raiz->compra.user.nome);
         printf("Valor: R$%.2f\n\n", raiz->compra.valor);
         imprimir(raiz->dir);
     }
@@ -320,7 +319,9 @@ void exibirCartao(tab_Cartao* tabela) {
             printf("Titular: %s\n", atual->dado->titular->nome);
             printf("Data de validade: %s\n", atual->dado->validade);
             printf("Bandeira: %s\n", atual->dado->bandeira);
-            printf("Codigo: %d\n", atual->dado->codigo);
+            printf("Codigo: %d\n\n", atual->dado->codigo);
+            printf("Compras do cartao do usuario %s:\n", atual->dado->titular->nome);
+            imprimir(atual->dado->dados);
             printf("----------------\n");
             atual = atual->next;
             posicao++;
@@ -389,6 +390,40 @@ bool verificaNumero(tab_Cartao* t, int num){
     return true;
 }
 
+bool verificaId_Compra(struct NoArv* raiz, int id) {
+    if (raiz == NULL) {
+        return false;
+    }
+
+    if (raiz->compra.id_compra == id) {
+        return true;
+    }
+
+    if (verificaId_Compra(raiz->esq, id)) {
+        return true;
+    }
+
+    if (verificaId_Compra(raiz->dir, id)) {
+        return true;
+    }
+
+    return false;
+}
+
+void exibirCompra(struct NoArv* cartao, int id){
+    if(cartao){
+        if(cartao->compra.id_compra == id){
+            printf("\nId encontrado, aqui esta as informacoes da sua compra\n");
+            printf("Nome: %s\n", cartao->compra.user.nome);
+            printf("Valor: %.2f\n", cartao->compra.valor);
+            printf("Itens: %s\n", cartao->compra.itens);
+            printf("----------------\n");
+        } else {
+            exibirCompra(cartao->esq, id);
+            exibirCompra(cartao->dir, id);
+        }
+    }
+}
 
 void menu(){
     tab_User* tabelaUsuarios = criarTabelaUsuarios();
@@ -398,7 +433,7 @@ void menu(){
     noCartao cartao;
     Compra compra;
 
-    int opcao, aux, num;
+    int opcao, aux, num, id_compra;
     float preco;
     char itens[TAM];
 
@@ -408,7 +443,7 @@ void menu(){
         printf("2. Exibir usuarios cadastrados\n");
         printf("3. Exibir cartoes cadastrados\n");
         printf("4. Cadastrar compra\n");
-        printf("5. Exibir compras\n");
+        printf("5. Exibir compra\n");
         printf("6. Sair\n");
         printf("Opcao: ");
         scanf("%d", &opcao);
@@ -486,7 +521,7 @@ void menu(){
                 break;
 
             case 4:
-                printf("\nInforme seu id: ");
+                printf("\nInforme o seu id de usuario: ");
                 scanf("%d",&aux);
                 user = buscaId(tabelaUsuarios, aux);
                 if(user){
@@ -496,6 +531,14 @@ void menu(){
                     cartao = buscaCartao(tabelaCartao, num);
                     if(cartao && cartao->dado->titular->id == user->dado.id){
                         printf("Cartao encontrado\n");
+                        do{
+                        printf("Informe o id da compra: ");
+                        scanf("%d", &compra.id_compra);
+                        if(verificaId_Compra(cartao->dado->dados, compra.id_compra)){
+                            printf("\nJa existe compra com esse id\n\n");
+                        }
+
+                    } while (verificaId_Compra(cartao->dado->dados, compra.id_compra));
                         printf("Informe os itens da compra: ");
                         scanf(" %[^\n]", itens);
                         strcpy(compra.itens, itens);
@@ -523,8 +566,11 @@ void menu(){
                 printf("\n");
                 cartao = buscaCartao(tabelaCartao, num);
                 if(cartao){
-                        printf("Cartao encontrado, aqui esta as compras:\n");
-                        imprimir(cartao->dado->dados);
+
+                        printf("Cartao encontrado\n");
+                        printf("Informe o id da compra: ");
+                        scanf("%d",&id_compra);
+                        exibirCompra(cartao->dado->dados, id_compra);
 
                 } else {
                     printf("Cartao nao cadastrado\n");
